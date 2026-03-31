@@ -1,6 +1,10 @@
 // =====================================================================================
 // РЕДАКТОР КАРТОЧКИ (VISUAL EDITOR ДЛЯ HOME ASSISTANT)
 // =====================================================================================
+
+const DEFAULT_WASHER_IMG = 'https://raw.githubusercontent.com/Eugen417/miele-appliance-card/main/washer.webp';
+const DEFAULT_DRYER_IMG = 'https://raw.githubusercontent.com/Eugen417/miele-appliance-card/main/dryer.webp';
+
 class MieleApplianceCardEditor extends HTMLElement {
   setConfig(config) {
     this._config = config;
@@ -282,7 +286,7 @@ class MieleApplianceCardEditor extends HTMLElement {
     setVal('appliance_type', appType);
     setVal('lang', this._config.lang || 'auto');
     setVal('entity', this._config.entity || '');
-    setVal('image', this._config.image || '/local/community/miele-appliance-card/washer.webp');
+    setVal('image', this._config.image || DEFAULT_WASHER_IMG);
     setVal('theme_color', this._config.theme_color || '#ff8c00');
     setVal('icon_scale', this._config.icon_scale || '1.0');
 
@@ -324,6 +328,16 @@ class MieleApplianceCardEditor extends HTMLElement {
     if (this._config[id] === value) return;
 
     let newConfig = { ...this._config };
+    
+    // Умное переключение картинок по умолчанию при смене типа устройства
+    if (id === 'appliance_type') {
+      if (this._config.image === DEFAULT_WASHER_IMG && value === 'dryer') {
+        newConfig['image'] = DEFAULT_DRYER_IMG;
+      } else if (this._config.image === DEFAULT_DRYER_IMG && value === 'washer') {
+        newConfig['image'] = DEFAULT_WASHER_IMG;
+      }
+    }
+
     if (value === '' || value === undefined || value === null) {
       delete newConfig[id]; 
     } else {
@@ -443,7 +457,7 @@ class MieleApplianceCard extends HTMLElement {
       entity: "",
       appliance_type: "washer",
       lang: "auto",
-      image: "/local/community/miele-appliance-card/washer.webp"
+      image: DEFAULT_WASHER_IMG
     };
   }
 
@@ -474,7 +488,7 @@ class MieleApplianceCard extends HTMLElement {
   setConfig(config) {
     if (!config || !config.entity) throw new Error('Пожалуйста, укажите базовый сенсор (entity) в настройках карточки');
     this.config = { 
-        image: '/local/community/miele-appliance-card/washer.webp', 
+        image: DEFAULT_WASHER_IMG, 
         appliance_type: 'washer', 
         lang: 'auto',
         theme_color: '#ff8c00',
