@@ -597,7 +597,7 @@ class MieleApplianceCard extends HTMLElement {
             transform: translate(-50%, -50%); 
             display: flex; flex-direction: column; align-items: center; justify-content: center; width: 70%; gap: 6px; 
         }
-        .drum-text { white-space: nowrap; font-weight: bold; text-shadow: 1px 1px 2px black, -1px -1px 2px black, 1px -1px 2px black, -1px 1px 2px black, 0 0 10px black; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+        .drum-text { white-space: nowrap; font-weight: bold; text-shadow: 1px 1px 2px black, -1px -1px 2px black, 1px -1px 2px black, -1px 1px 2px black, 0 0 10px black; max-width: 100%; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
         
         /* Оригинальные цвета надписей Miele */
         .program-phase { color: #00ff00; font-size: clamp(10px, 2.5vw, 16px); }
@@ -695,12 +695,34 @@ class MieleApplianceCard extends HTMLElement {
       </ha-card>`;
     
     this.content = this.shadowRoot.querySelector('.card-container');
+    
+    // Основные элементы
     this.shadowRoot.querySelector('.btn-power').addEventListener('click', () => this.togglePower());
     this.shadowRoot.querySelector('.btn-startstop').addEventListener('click', () => this.toggleStartStop());
-    this.shadowRoot.querySelector('.drum-info').addEventListener('click', () => this.openMoreInfo(this.entities.base));
     this.shadowRoot.querySelector('.remaining-time').addEventListener('click', () => this.openMoreInfo(this.entities.remaining));
     this.shadowRoot.querySelector('.door-lock').addEventListener('click', () => this.openMoreInfo(this.entities.door));
     
+    // Клик по пустому пространству барабана открывает главное устройство
+    this.shadowRoot.querySelector('.drum-info').addEventListener('click', () => this.openMoreInfo(this.entities.base));
+    
+    // Индивидуальные клики по сенсорам внутри барабана
+    const bindDrumText = (selector, entityKey) => {
+        const el = this.shadowRoot.querySelector(selector);
+        if (el) {
+            el.addEventListener('click', (e) => {
+                e.stopPropagation(); // Отменяем клик по всему барабану
+                this.openMoreInfo(this.entities[entityKey]);
+            });
+        }
+    };
+    
+    bindDrumText('.program-phase', 'phase');
+    bindDrumText('.spin-speed', 'speed');
+    bindDrumText('.program-name', 'program');
+    bindDrumText('.target-temperature', 'temp');
+    bindDrumText('.drying-step', 'drying_step');
+
+    // Кнопки воды и энергии
     this.shadowRoot.querySelector('.water-container').addEventListener('click', () => {
         const ent = (this._showForecast && this._hass.states[this.entities.water_forecast]) ? this.entities.water_forecast : this.entities.water;
         this.openMoreInfo(ent);
@@ -713,6 +735,7 @@ class MieleApplianceCard extends HTMLElement {
     this.shadowRoot.querySelector('.energy-val').addEventListener('click', energyClick);
     this.shadowRoot.querySelector('.energy-icon').addEventListener('click', energyClick);
     
+    // TwinDos и Фильтр
     this.shadowRoot.querySelector('.twindos-1').addEventListener('click', () => this.openMoreInfo(this.entities.td1));
     this.shadowRoot.querySelector('.twindos-2').addEventListener('click', () => this.openMoreInfo(this.entities.td2));
     this.shadowRoot.querySelector('.filter-alert').addEventListener('click', () => { 
