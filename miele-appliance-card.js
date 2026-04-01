@@ -32,9 +32,9 @@ class MieleApplianceCardEditor extends HTMLElement {
         washer: "Стиральная машина", dryer: "Сушильная машина", entity: "Базовый сенсор (Entity)",
         img: "Путь к картинке (URL)", design: "🎨 Дизайн и Размеры", themeColor: "Цвет кольца прогресса",
         iconScale: "Масштаб значков (1.0 = 100%)",
-        pos: "📍 Координаты элементов (%)", drumXY: "Барабан (Центр) X / Y", waterXY: "Расход воды X / Y",
+        pos: "📍 Координаты элементов (%)", drumXY: "Барабан (Текст) X / Y", waterXY: "Расход воды X / Y",
         energyXY: "Расход энергии X / Y", powerXY: "Кнопка Питание X / Y", startXY: "Кнопка Старт X / Y",
-        ringXY: "Кольцо X / Y", ringSize: "Размер кольца (%)",
+        ringXY: "Барабан (Кольцо) X / Y", ringSize: "Размер кольца (%)",
         adv: "⚙️ Продвинутые: Переопределение сенсоров", advHint: "Оставьте пустым для авто-генерации. Начните вводить текст для поиска."
       },
       en: {
@@ -42,9 +42,9 @@ class MieleApplianceCardEditor extends HTMLElement {
         washer: "Washer", dryer: "Dryer", entity: "Base Entity",
         img: "Image URL", design: "🎨 Design & Sizes", themeColor: "Progress Ring Color",
         iconScale: "Icon Scale (1.0 = 100%)",
-        pos: "📍 Element Coordinates (%)", drumXY: "Drum (Center) X / Y", waterXY: "Water X / Y",
+        pos: "📍 Element Coordinates (%)", drumXY: "Drum (Text) X / Y", waterXY: "Water X / Y",
         energyXY: "Energy X / Y", powerXY: "Power Button X / Y", startXY: "Start Button X / Y",
-        ringXY: "Ring X / Y", ringSize: "Ring Size (%)",
+        ringXY: "Drum (Ring) X / Y", ringSize: "Ring Size (%)",
         adv: "⚙️ Advanced: Sensor Overrides", advHint: "Leave blank for auto-generation. Start typing to search."
       },
       de: {
@@ -52,9 +52,9 @@ class MieleApplianceCardEditor extends HTMLElement {
         washer: "Waschmaschine", dryer: "Trockner", entity: "Basis-Entität",
         img: "Bild-URL", design: "🎨 Design & Größen", themeColor: "Farbe des Fortschrittsrings",
         iconScale: "Symbolmaßstab (1.0 = 100%)",
-        pos: "📍 Elementkoordinaten (%)", drumXY: "Trommel (Mitte) X / Y", waterXY: "Wasser X / Y",
+        pos: "📍 Elementkoordinaten (%)", drumXY: "Trommel (Text) X / Y", waterXY: "Wasser X / Y",
         energyXY: "Energie X / Y", powerXY: "Ein/Aus-Taste X / Y", startXY: "Start-Taste X / Y",
-        ringXY: "Ring X / Y", ringSize: "Ringgröße (%)",
+        ringXY: "Trommel (Ring) X / Y", ringSize: "Ringgröße (%)",
         adv: "⚙️ Erweitert: Sensorüberschreibungen", advHint: "Für automatische Generierung leer lassen. Tippen Sie zur Suche."
       }
     };
@@ -194,6 +194,7 @@ class MieleApplianceCardEditor extends HTMLElement {
               <div class="grid-2" id="washer_sensors">
                 <div class="form-row"><label>Water Cons.</label><input type="text" id="water_entity" class="config-item" list="entities"></div>
                 <div class="form-row"><label>Water Forecast (%)</label><input type="text" id="water_forecast_entity" class="config-item" list="entities"></div>
+                <div class="form-row"><label>Target Temp.</label><input type="text" id="temp_entity" class="config-item" list="entities"></div>
                 <div class="form-row"><label>TwinDos 1</label><input type="text" id="td1_entity" class="config-item" list="entities"></div>
                 <div class="form-row"><label>TwinDos 2</label><input type="text" id="td2_entity" class="config-item" list="entities"></div>
               </div>
@@ -292,7 +293,7 @@ class MieleApplianceCardEditor extends HTMLElement {
 
     ['ring_x', 'ring_y', 'ring_size', 'drum_x', 'drum_y', 'water_x', 'water_y', 'energy_x', 'energy_y', 'power_x', 'power_y', 'start_x', 'start_y',
      'power_entity', 'door_entity', 'water_entity', 'water_forecast_entity', 'energy_entity', 'energy_forecast_entity',
-     'td1_entity', 'td2_entity', 'drying_step_entity', 'problem_entity'].forEach(id => {
+     'td1_entity', 'td2_entity', 'drying_step_entity', 'problem_entity', 'temp_entity'].forEach(id => {
       setVal(id, this._config[id] || '');
     });
 
@@ -313,6 +314,7 @@ class MieleApplianceCardEditor extends HTMLElement {
     
     setPlaceholder('power_entity', devName ? `switch.${devName}_power` : '');
     setPlaceholder('door_entity', devName ? `binary_sensor.${devName}_door` : '');
+    setPlaceholder('temp_entity', base ? `${base}_target_temperature` : '');
     setPlaceholder('water_entity', base ? `${base}_water_consumption` : '');
     setPlaceholder('water_forecast_entity', base ? `${base}_water_forecast` : '');
     setPlaceholder('energy_entity', base ? `${base}_energy_consumption` : '');
@@ -504,7 +506,7 @@ class MieleApplianceCard extends HTMLElement {
     if(this.config.drum_x) this.style.setProperty('--miele-drum-x', this.config.drum_x + '%');
     if(this.config.drum_y) this.style.setProperty('--miele-drum-y', this.config.drum_y + '%');
     
-    // Координаты и размер кольца (с фоллбэком на барабан, если не заданы отдельно)
+    // Координаты и размер кольца теперь полностью независимы от барабана (по умолчанию 50 / 43)
     if(this.config.ring_x) this.style.setProperty('--miele-ring-x', this.config.ring_x + '%');
     if(this.config.ring_y) this.style.setProperty('--miele-ring-y', this.config.ring_y + '%');
     if(this.config.ring_size) this.style.setProperty('--miele-ring-size', this.config.ring_size + '%');
@@ -531,6 +533,7 @@ class MieleApplianceCard extends HTMLElement {
       start: this.config.start_entity || `button.${devName}_zapustit`,
       stop: this.config.stop_entity || `button.${devName}_ostanovit`,
       door: this.config.door_entity || `binary_sensor.${devName}_door`,
+      temp: this.config.temp_entity || `${base}_target_temperature`,
       energy: this.config.energy_entity || `${base}_energy_consumption`,
       energy_forecast: this.config.energy_forecast_entity || `${base}_energy_forecast`,
       water: this.config.water_entity || `${base}_water_consumption`,
@@ -594,11 +597,16 @@ class MieleApplianceCard extends HTMLElement {
             transform: translate(-50%, -50%); 
             display: flex; flex-direction: column; align-items: center; justify-content: center; width: 70%; gap: 6px; 
         }
-        .drum-text { white-space: nowrap; font-weight: bold; text-shadow: 2px 2px 4px black, -1px -1px 4px black, 0 0 10px black; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+        .drum-text { white-space: nowrap; font-weight: bold; text-shadow: 1px 1px 2px black, -1px -1px 2px black, 1px -1px 2px black, -1px 1px 2px black, 0 0 10px black; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
         
         /* Оригинальные цвета надписей Miele */
         .program-phase { color: #00ff00; font-size: clamp(10px, 2.5vw, 16px); }
         .spin-speed, .program-name { color: #ff8c00; font-size: clamp(10px, 2.5vw, 16px); }
+        
+        .target-temperature { display: flex; align-items: center; justify-content: center; font-size: clamp(12px, 2.5vw, 17px); font-weight: bold; text-shadow: 1px 1px 2px black, -1px -1px 2px black, 1px -1px 2px black, -1px 1px 2px black, 0 0 10px black; margin-top: 2px; }
+        .temp-prefix { color: #ff8c00; font-weight: bold; margin-right: 3px; }
+        .temp-value { transition: color 0.5s ease; }
+        
         .drying-step { color: #00bfff; font-size: clamp(8px, 2vw, 14px); }
         .remaining-time { top: var(--miele-power-y, 5.5%); left: calc(var(--miele-drum-x, 50%) - 2%); color: #ff8c00; font-size: clamp(10px, 2.5vw, 16px); max-width: 25%; text-align: center; }
         
@@ -614,8 +622,8 @@ class MieleApplianceCard extends HTMLElement {
         
         .progress-ring { 
             position: absolute; 
-            top: var(--miele-ring-y, var(--miele-drum-y, 43%)); 
-            left: var(--miele-ring-x, var(--miele-drum-x, 50%)); 
+            top: var(--miele-ring-y, 43%); 
+            left: var(--miele-ring-x, 50%); 
             width: var(--miele-ring-size, 55%); 
             height: var(--miele-ring-size, 55%); 
             transform: translate(-50%, -50%) rotate(-90deg); 
@@ -647,6 +655,10 @@ class MieleApplianceCard extends HTMLElement {
                 <div class="drum-text program-phase"></div>
                 <div class="drum-text spin-speed"></div>
                 <div class="drum-text program-name"></div>
+                <div class="drum-text target-temperature" style="display: none;">
+                    <span class="temp-prefix">t&deg;</span>
+                    <span class="temp-value"></span>
+                </div>
                 <div class="drum-text drying-step"></div>
             </div>
             <div class="text remaining-time"></div>
@@ -720,6 +732,7 @@ class MieleApplianceCard extends HTMLElement {
       this.shadowRoot.querySelector('.program-phase').style.display = 'none';
       this.shadowRoot.querySelector('.spin-speed').style.display = 'none';
       this.shadowRoot.querySelector('.drying-step').style.display = 'none';
+      this.shadowRoot.querySelector('.target-temperature').style.display = 'none';
       this.shadowRoot.querySelector('.progress-ring').style.display = 'none';
       if (this.shadowRoot.querySelector('.btn-power')) { this.shadowRoot.querySelector('.btn-power').style.color = '#ff0000'; }
       return;
@@ -737,11 +750,61 @@ class MieleApplianceCard extends HTMLElement {
     
     if (isD) {
       this.shadowRoot.querySelector('.spin-speed').style.display = 'none';
+      this.shadowRoot.querySelector('.target-temperature').style.display = 'none';
     } else {
       const sp = s(this.entities.speed); 
       const spT = on ? (inv(sp) ? '-' : `${sp} rpm`) : '';
       this.setText('.spin-speed', spT); 
       this.shadowRoot.querySelector('.spin-speed').style.display = spT ? 'block' : 'none';
+
+      // Вывод целевой температуры для стиралки с многоцветным RGB градиентом (Синий -> Желтый -> Оранжевый -> Красный)
+      const tmpObj = this._hass.states[this.entities.temp];
+      const tmp = tmpObj?.state;
+      const uom = tmpObj?.attributes?.unit_of_measurement || '°C';
+      let tmpVal = '';
+      
+      if (on && !inv(tmp)) {
+          const val = parseFloat(tmp);
+          if (!isNaN(val)) {
+              tmpVal = `${Math.round(val)}${uom}`;
+              let r, g, b;
+              if (val <= 30) {
+                  // Синий
+                  r = 0; g = 191; b = 255;
+              } else if (val <= 40) {
+                  // Переход Синий -> Желтый (30-40)
+                  let p = (val - 30) / 10;
+                  r = Math.round(0 + p * 255);
+                  g = Math.round(191 + p * 64);
+                  b = Math.round(255 - p * 255);
+              } else if (val <= 60) {
+                  // Переход Желтый -> Оранжевый (40-60)
+                  let p = (val - 40) / 20;
+                  r = 255;
+                  g = Math.round(255 - p * 115);
+                  b = 0;
+              } else if (val <= 80) {
+                  // Переход Оранжевый -> Красный (60-80)
+                  let p = (val - 60) / 20;
+                  r = 255;
+                  g = Math.round(140 - p * 140);
+                  b = 0;
+              } else {
+                  // Красный
+                  r = 255; g = 0; b = 0;
+              }
+              this.shadowRoot.querySelector('.temp-value').style.color = `rgb(${r},${g},${b})`;
+          } else {
+              tmpVal = `${tmp}`;
+              this.shadowRoot.querySelector('.temp-value').style.color = '#ccc';
+          }
+      } else if (on) {
+          tmpVal = '-';
+          this.shadowRoot.querySelector('.temp-value').style.color = '#ccc';
+      }
+      
+      this.setText('.temp-value', tmpVal);
+      this.shadowRoot.querySelector('.target-temperature').style.display = tmpVal && tmpVal !== '-' ? 'flex' : 'none';
     }
     
     const pr = s(this.entities.program); 
