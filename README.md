@@ -35,6 +35,10 @@ Interactive custom card for Miele washing and drying machines (W1/T1 models) wit
 </p>
 
 ### 🚀 Installation via HACS (Recommended)
+
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Eugen417&repository=miele-appliance-card&category=plugin)
+
 1. Open **HACS** -> **Frontend**.
 2. Click the 3 dots in the top right corner -> **Custom repositories**.
 3. Paste the link to this repository: `https://github.com/Eugen417/miele-appliance-card`, select the **Lovelace** category, and click Add.
@@ -66,6 +70,10 @@ By default, the card uses images directly from GitHub. To prevent the card from 
 * **Кастомные сенсоры:** Поддержка любых нестандартных сенсоров через поиск сущностей в редакторе.
 
 ### 🚀 Установка через HACS (Рекомендуется)
+
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Eugen417&repository=miele-appliance-card&category=plugin)
+
 1. Откройте **HACS** -> **Frontend**.
 2. Нажмите 3 точки в правом верхнем углу -> **Custom repositories (Пользовательские репозитории)**.
 3. Вставьте ссылку на этот репозиторий: `https://github.com/Eugen417/miele-appliance-card`, выберите категорию **Lovelace** и нажмите Добавить.
@@ -97,6 +105,10 @@ Interaktive benutzerdefinierte Karte für Miele Waschmaschinen und Trockner (W1/
 * **Benutzerdefinierte Sensoren:** Unterstützung für beliebige nicht standardmäßige Sensoren über die Entitätssuche im Editor.
 
 ### 🚀 Installation über HACS (Empfohlen)
+
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Eugen417&repository=miele-appliance-card&category=plugin)
+
 1. Öffnen Sie **HACS** -> **Frontend**.
 2. Klicken Sie auf die 3 Punkte in der oberen rechten Ecke -> **Custom repositories**.
 3. Fügen Sie den Link zu diesem Repository ein: `https://github.com/Eugen417/miele-appliance-card`, wählen Sie die Kategorie **Lovelace** und klicken Sie auf Hinzufügen.
